@@ -1,5 +1,8 @@
 package es.cresdev.patterns.chainofresponsability.soportetecnico;
 
+import es.cresdev.patterns.chainofresponsability.soportetecnico.nivel.SoporteNivel1;
+import es.cresdev.patterns.chainofresponsability.soportetecnico.nivel.SoporteNivel2;
+import es.cresdev.patterns.chainofresponsability.soportetecnico.nivel.SoporteNivel3;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -9,18 +12,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class ChainOfResponsabilitySoporteTecnicoTests {
 
-    private ManejadorSoporte construirCadenaSoporte() {
+    private SoporteHandler construirCadenaSoporte() {
         return new SoporteNivel1(
                 new SoporteNivel2(
-                        new SoporteNivel3(null)
+                        new SoporteNivel3()
                 )
         );
     }
 
     @Test
     void soporteNivel1DebeManejarSolicitudNivel1() {
-        ManejadorSoporte soporte = construirCadenaSoporte();
-        Solicitud solicitud = new Solicitud(1, "Resetear contraseña");
+        SoporteHandler soporte = construirCadenaSoporte();
+        Solicitud solicitud = new Solicitud(NivelSolicitud.NIVEL_1, "Resetear contraseña");
 
         String resultado = soporte.manejarSolicitud(solicitud);
 
@@ -29,8 +32,8 @@ public class ChainOfResponsabilitySoporteTecnicoTests {
 
     @Test
     void soporteNivel2DebeManejarSolicitudNivel2() {
-        ManejadorSoporte soporte = construirCadenaSoporte();
-        Solicitud solicitud = new Solicitud(2, "Error en la configuración");
+        SoporteHandler soporte = construirCadenaSoporte();
+        Solicitud solicitud = new Solicitud(NivelSolicitud.NIVEL_2, "Error en la configuración");
 
         String resultado = soporte.manejarSolicitud(solicitud);
 
@@ -39,8 +42,8 @@ public class ChainOfResponsabilitySoporteTecnicoTests {
 
     @Test
     void soporteNivel3DebeManejarSolicitudNivel3() {
-        ManejadorSoporte soporte = construirCadenaSoporte();
-        Solicitud solicitud = new Solicitud(3, "Bug crítico en el sistema");
+        SoporteHandler soporte = construirCadenaSoporte();
+        Solicitud solicitud = new Solicitud(NivelSolicitud.NIVEL_3, "Bug crítico en el sistema");
 
         String resultado = soporte.manejarSolicitud(solicitud);
 
@@ -49,8 +52,8 @@ public class ChainOfResponsabilitySoporteTecnicoTests {
 
     @Test
     void solicitudNivelNoSoportadoDebeLanzarExcepcion() {
-        ManejadorSoporte soporte = construirCadenaSoporte();
-        Solicitud solicitud = new Solicitud(4, "Petición desconocida");
+        SoporteHandler soporte = construirCadenaSoporte();
+        Solicitud solicitud = new Solicitud(null, "Petición desconocida");
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             soporte.manejarSolicitud(solicitud);
@@ -69,7 +72,7 @@ public class ChainOfResponsabilitySoporteTecnicoTests {
         };
 
         SoporteNivel1 nivel1 = new SoporteNivel1(mockNivel2);
-        Solicitud solicitud = new Solicitud(2, "Problema intermedio");
+        Solicitud solicitud = new Solicitud(NivelSolicitud.NIVEL_2, "Problema intermedio");
 
         String resultado = nivel1.manejarSolicitud(solicitud);
 
@@ -86,7 +89,7 @@ public class ChainOfResponsabilitySoporteTecnicoTests {
         };
 
         SoporteNivel2 nivel2 = new SoporteNivel2(mockNivel3);
-        Solicitud solicitud = new Solicitud(3, "Problema avanzado");
+        Solicitud solicitud = new Solicitud(NivelSolicitud.NIVEL_3, "Problema avanzado");
 
         String resultado = nivel2.manejarSolicitud(solicitud);
 
